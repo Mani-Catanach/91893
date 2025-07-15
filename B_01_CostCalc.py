@@ -12,33 +12,22 @@ def make_statement(statement, decoration):
     return f"{decoration * 3} {statement} {decoration * 3}\n"
 
 
-def yes_no(question):
-    """Checks that users enter yes / no / y / n"""
+def string_check(question, valid_answers, numletters):
+    """Checks that users enter the full word
+    or the 'n' letter/s of a word from a range of valid responses"""
 
     while True:
 
         response = input(question).lower()
 
-        if response == "y" or response == "yes":
-            return "yes"
-        elif response == "n" or response == "no":
-            return "no"
+        for item in valid_answers:
 
-        print(f"Please answer yes / no (y / n)")
-
-def cost_profit(question):
-    """Checks that users enter yes / no / y / n"""
-
-    while True:
-
-        response = input(question).lower()
-
-        if response == "c" or response == "cost":
-            return "cost"
-        elif response == "p" or response == "profit":
-            return "profit"
-
-        print(f"Please answer cost / profit (c / p)")
+            # check if the response is the entire word
+            if response == item:
+                return item
+            elif response == item[:numletters]:
+                return item
+        print(f"Please choose an option from {valid_answers}")
 
 def instructions():
     """Displays instructions"""
@@ -119,7 +108,7 @@ def cost(exp_type, profit_type, how_many=1):
 
     # Lists for panda
     all_wages = []
-    all_monthly = []
+    all_week = []
     all_items = []
     all_dollar_per_pizza = []
     all_sell_pizza = []
@@ -127,7 +116,7 @@ def cost(exp_type, profit_type, how_many=1):
 
     # Expenses dictionary
     expenses_dict = {
-        "Utility Expenses": all_monthly,
+        "Utility Expenses": all_week,
         "Wages?": all_wages,
         "How many employees": all_employee
     }
@@ -147,12 +136,15 @@ def cost(exp_type, profit_type, how_many=1):
 
         # Get item name and check it's not blank
 
+        wage_question = "Employee wages? $"
+        hours_question = "Hours / week?"
 
-        expense_profit = cost_profit("Costs or profits?")
+        expense_profit = string_check("Costs or profits?", ("cost", "profit"), 1)
         if expense_profit == "cost":
+            emp_util = string_check("utilities or wages?", ("utilities", "wages"), 1)
             employee_title = not_blank("Employee Title: ")
             # check users enter at least one variable expense
-            if exp_type == "wage" and employee_title == "xxx" and len(all_items) == 0:
+            if exp_type == "wages" and employee_title == "xxx" and len(all_items) == 0:
                 print("Oops - you have not entered anything.  "
                       "You need at least one slave.")
                 continue
@@ -163,7 +155,7 @@ def cost(exp_type, profit_type, how_many=1):
 
             # Get variable expenses item amount <enter> defaults to number of
             # products being made.
-            if exp_type == "Wage":
+            if exp_type == "wage":
 
                 amount = num_check(f"How many employees? <enter for {how_many}>: ",
                                    "integer", "")
@@ -172,13 +164,14 @@ def cost(exp_type, profit_type, how_many=1):
                 if amount == "":
                     amount = how_many
 
-                wage = "Employee wages? $"
-
             # Get price for item (question customised depending on expense type).
-            price_for_one = num_check(how_much_question, "float")
+            wage = num_check(wage_question, "float")
             print()
+            hours = num_check(hours_question, "integer")
+            cost_week = hours * wage
 
-            all_monthly.append(monthly)
+
+            all_week.append(cost_week)
             all_wages.append(wage)
 
         elif expense_profit == "profit":
@@ -343,7 +336,6 @@ if want_instructions == "yes":
     instructions()
 
 print()
-
 # Get product details...
 product_name = not_blank("Product Name: ")
 quantity_made = num_check("Quantity being made: ", "integer")
