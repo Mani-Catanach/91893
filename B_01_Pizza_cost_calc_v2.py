@@ -194,10 +194,11 @@ def pizza_profit(pizza_profit, how_pizza=1):
     all_pizza_sell = []
     all_prof_per_pizza = []
 
-    prof_dict = {
+    profit_dict = {
+        "Name": all_pizza,
         "Material cost": all_pizza_cost,
         "Sell price": all_pizza_sell,
-        "Profit / Pizza": all_prof_per_pizza
+        "Profit / Pizza": all_prof_per_pizza,
     }
 
     # loop to get expenses
@@ -207,9 +208,42 @@ def pizza_profit(pizza_profit, how_pizza=1):
         mat_cost = num_check("Food Cost?", "float")
         pizza_prof = cost_pizza - mat_cost
 
+        if pizza_name == "xxx" and len(all_pizza) == 0:
+            print("Oops - you have not entered anything.  "
+                  "You need at least one item.")
+            continue
+
+        elif pizza_name == "xxx":
+            break
+
         all_pizza_cost.append(mat_cost)
         all_pizza_sell.append(cost_pizza)
         all_prof_per_pizza.append(pizza_prof)
+
+    # make panda
+    pizza_frame = pandas.DataFrame(profit_dict)
+
+    # Calculate Cost Column
+    pizza_frame['Profit'] = pizza_frame['Sell price'] - pizza_frame['Material cost']
+
+    # calculate subtotal
+    pizza_subtotal = pizza_frame['Profit'].sum()
+
+    # Apply currency formatting to currency columns.
+    add_pizza = ['Sell price', 'Material cost', 'Profit']
+    for var_item in add_pizza:
+        pizza_frame[var_item] = pizza_frame[var_item].apply(currency)
+
+    # make expense frame into a string with the desired columns
+    if pizza_prof == "variable":
+        pizza_string = tabulate(pizza_frame, headers='keys',
+                                  tablefmt='psql', showindex=False)
+    else:
+        pizza_string = tabulate(pizza_frame[['Name', 'Profit']], headers='keys',
+                                  tablefmt='psql', showindex=False)
+
+    # return the expenses panda and subtotal
+    return pizza_string, pizza_subtotal
 
 def currency(x):
     """Formats numbers as currency ($#.##)"""
