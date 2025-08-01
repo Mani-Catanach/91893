@@ -36,14 +36,14 @@ def instructions():
     - How many items you plan on selling 
     - The costs for each component of the product 
       (variable expenses)
-    - Whether or not you have fixed expenses (if you have 
-      fixed expenses, it will ask you what they are).
+    - Whether or not you have utility expenses (if you have 
+      utility expenses, it will ask you what they are).
     - How much money you want to make (ie: your profit goal)
 
 It will also ask you how much the recommended sales price should 
 be rounded to.
 
-The program outputs an itemised list of the variable and fixed 
+The program outputs an itemised list of the variable and utility 
 expenses (which includes the subtotals for these expenses). 
 
 Finally it will tell you how much you should sell each item for 
@@ -101,7 +101,7 @@ def num_check(question, num_type="float", exit_code=None):
 
 
 def get_expenses(exp_type, how_many=10):
-    """Gets variable / fixed expenses and outputs
+    """Gets variable / utility expenses and outputs
     panda (as a string) and a subtotal of the expenses"""
 
     # Lists for panda
@@ -116,7 +116,7 @@ def get_expenses(exp_type, how_many=10):
         "$ / Employee": all_employee_cost
     }
 
-    # defaults for fixed expenses
+    # defaults for utility expenses
     amount = how_many   # how_many defaults to 1
     how_much_question = "Hours per week"
 
@@ -184,66 +184,66 @@ def get_expenses(exp_type, how_many=10):
     # return the expenses panda and subtotal
     return expense_string, subtotal
 
-
-def pizza_profit(pizza_profit, how_pizza=1):
+# Note: re-enter this later as an argument
+# pizza_profit,
+def pizza_prof_calc(how_pizza=1):
 
 
     # PIZZA list for panda
     all_pizza = []
     all_pizza_cost = []
     all_pizza_sell = []
-    all_prof_per_pizza = []
+    all_profit_per_pizza = []
 
     profit_dict = {
         "Name": all_pizza,
         "Material cost": all_pizza_cost,
         "Sell price": all_pizza_sell,
-        "Profit / Pizza": all_prof_per_pizza,
+        "Profit/Pizza": all_profit_per_pizza
     }
 
     # loop to get expenses
     while True:
         pizza_name = not_blank("Pizza Name: ")
+
+        if pizza_name.lower() == "xxx":
+            if len(all_pizza) == 0:
+                print("Oops - you have not entered anything.  "
+                      "You need at least one item.")
+                continue
+            else:
+                break
+
         cost_pizza = num_check("$ / Pizza? ", "float")
-        mat_cost = num_check("Food Cost?", "float")
+        mat_cost = num_check("Material Cost?", "float")
         pizza_prof = cost_pizza - mat_cost
 
-        if pizza_name == "xxx" and len(all_pizza) == 0:
-            print("Oops - you have not entered anything.  "
-                  "You need at least one item.")
-            continue
-
-        elif pizza_name == "xxx":
-            break
-
+        all_pizza.append(pizza_name)
         all_pizza_cost.append(mat_cost)
         all_pizza_sell.append(cost_pizza)
-        all_prof_per_pizza.append(pizza_prof)
+        all_profit_per_pizza.append(pizza_prof)
 
     # make panda
     pizza_frame = pandas.DataFrame(profit_dict)
 
     # Calculate Cost Column
-    pizza_frame['Profit'] = pizza_frame['Sell price'] - pizza_frame['Material cost']
+    pizza_frame['Profit / Pizza'] = pizza_frame['Sell price'] - pizza_frame['Material cost']
 
     # calculate subtotal
-    pizza_subtotal = pizza_frame['Profit'].sum()
+    pizza_sub = pizza_frame['Profit / Pizza'].sum()
+    avg_prof = pizza_frame['Profit / Pizza'].mean
 
     # Apply currency formatting to currency columns.
-    add_pizza = ['Sell price', 'Material cost', 'Profit']
+    add_pizza = ['Sell price', 'Material cost', 'Profit / Pizza']
     for var_item in add_pizza:
         pizza_frame[var_item] = pizza_frame[var_item].apply(currency)
 
     # make expense frame into a string with the desired columns
-    if pizza_prof == "variable":
-        pizza_string = tabulate(pizza_frame, headers='keys',
-                                  tablefmt='psql', showindex=False)
-    else:
-        pizza_string = tabulate(pizza_frame[['Name', 'Profit']], headers='keys',
+    pizza_string = tabulate(pizza_frame[['Name', 'Profit / Pizza']], headers='keys',
                                   tablefmt='psql', showindex=False)
 
     # return the expenses panda and subtotal
-    return pizza_string, pizza_subtotal
+    return pizza_string, pizza_sub, avg_prof
 
 def currency(x):
     """Formats numbers as currency ($#.##)"""
@@ -363,11 +363,11 @@ def clean_filename(raw_filename):
 
 # Main routine goes here
 
-# intialise variables...
+# initialise variables...
 
-# assume we have no fixed expenses for now
+# assume we have no utility expenses for now
 utility_subtotal = 0
-fixed_panda_string = ""
+utility_panda_string = ""
 
 print(make_statement("Pizza Cost Calculator", "[]"))
 
@@ -391,24 +391,28 @@ print()
 variable_panda_string = employee_wages[0]
 employee_subtotal = employee_wages[1]
 
-# ask user if they have fixed expenses and retrieve them
+# ask user if they have utility expenses and retrieve them
 print()
-has_fixed = yes_no("Do you have utility costs? ")
+has_utility = yes_no("Do you have utility costs? ")
 
-if has_fixed == "yes":
+if has_utility == "yes":
     utility_expenses = get_expenses("utility")
 
-    fixed_panda_string = utility_expenses[0]
+    utility_panda_string = utility_expenses[0]
     utility_subtotal = utility_expenses[1]
 
-    # If the user has not entered any fixed expenses,
+    # If the user has not entered any utility expenses,
     # # Set empty panda to "" so that it does not display!
     if utility_subtotal == 0:
-        has_fixed = "no"
-        fixed_panda_string = ""
+        has_utility = "no"
+        utility_panda_string = ""
 
 total_expenses = employee_subtotal + utility_subtotal
 total_expenses_string = f"Total Expenses: ${total_expenses:.2f}"
+
+print()
+print("Let's get your profit per pizza...")
+pi_profit_string, pizza_subtotal, prof_avg = pizza_prof_calc()
 
 
 # Get profit Goal here.
@@ -416,9 +420,10 @@ target = profit_goal(total_expenses)
 sales_target = total_expenses + target
 
 # calc min sell price and round it to nearest desired dollar amount
-selling_price = (total_expenses +target)
+selling_amount = (total_expenses + target) / prof_avg
+min_num = math.ceil(selling_amount)
 round_to = num_check("Round To: ", 'integer')
-suggested_price = round_up(selling_price, round_to)
+suggested_price = round_up(selling_amount, round_to)
 
 # strings / output area
 
@@ -436,22 +441,22 @@ main_heading_string = make_statement(f"Pizza Cost Calculator "
 variable_heading_string = make_statement("Employee Wages", "-")
 employee_subtotal_string = f"Wage Expense Subtotal: ${employee_subtotal:.2f}"
 
-# set up strings if we have fixed costs
-if has_fixed == "yes":
-    fixed_heading_string = make_statement("Fixed Expenses", "-")
+# set up strings if we have utility costs
+if has_utility == "yes":
+    utility_heading_string = make_statement("Utility Expenses", "-")
     utility_subtotal_string = f"Utility Expenses Subtotal: {utility_subtotal:.2f}"
 
-# set fixed cost strings to blank if we don't have fixed costs
+# set utility cost strings to blank if we don't have utility costs
 else:
-    fixed_heading_string = make_statement("You have no Utility Expenses", "-")
+    utility_heading_string = make_statement("You have no Utility Expenses", "-")
     utility_subtotal_string = "Utility Expenses Subtotal: $0.00"
 
 
-selling_price_heading = make_statement("Selling {price Calculations", "-")
+selling_amount_heading = make_statement("Selling {price Calculations", "-")
 profit_goal_string = f"Profit Goal: ${target:.2f}"
 sales_target_string = f"\nTotal Sales Needed: ${sales_target:.2f}"
 
-minimum_price_string = f"Minimum Selling Price: ${selling_price:.2f}"
+minimum_price_string = f"Minimum Selling Price: ${selling_amount:.2f}"
 suggested_price_string = make_statement(f"Suggested Selling Price:"
                                         f"${suggested_price:.2f}", "*")
 
@@ -459,9 +464,9 @@ suggested_price_string = make_statement(f"Suggested Selling Price:"
 to_write = [main_heading_string,
             "\n", variable_heading_string, variable_panda_string,
             employee_subtotal_string,
-            "\n", fixed_heading_string, fixed_panda_string,
+            "\n", utility_heading_string, utility_panda_string,
             utility_subtotal_string, "\n",
-            selling_price_heading, total_expenses_string,
+            selling_amount_heading, total_expenses_string,
             profit_goal_string, sales_target_string,
             minimum_price_string, "\n", suggested_price_string]
 
