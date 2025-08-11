@@ -105,80 +105,107 @@ def get_expenses(exp_type, how_many=10):
     panda (as a string) and a subtotal of the expenses"""
 
     # Lists for panda
-    all_items = []
+    all_emp = []
     all_amounts = []
     all_employee_cost = []
+    all_utility_cost = []
+    all_utility = []
 
     # Expenses dictionary
-    expenses_dict = {
-        "Item": all_items,
+    wages_dict = {
+        "Employee": all_emp,
         "Amount": all_amounts,
-        "$ / Employee": all_employee_cost
+        "$ / Employee": all_employee_cost,
+    }
+    
+    utility_dict = {
+        "Utility": all_utility,
+        "Utility Cost":all_utility_cost
     }
 
-    # defaults for utility expenses
-    amount = how_many   # how_many defaults to 1
+    amount = how_many   # how_many defaults to 10
     how_much_question = "Hours per week"
+    if exp_type == "utility":
+        # loop to get utilities
+        while True:
+            util_name = not_blank("Utility Name: ")
 
-    # loop to get wages
-    while True:
+            # check users enter at least one utility expense
+            if util_name == "xxx" and len(all_utility) == 0:
+                print("Oops - you have not entered any utilities.  "
+                      "You need at least one item.")
+                continue
 
-        # Get item name and check it's not blank
-        employee_title = not_blank("Employee Title: ")
+            # end loop when users enter exit code
+            elif util_name == "xxx":
+                break
 
-        # check users enter at least one variable expense
-        if employee_title == "xxx" and len(all_items) == 0:
-            print("Oops - you have not entered anything.  "
-                  "You need at least one item.")
-            continue
+            util_cost = num_check("Utility Cost: ", "float")
 
-        # end loop when users enter exit code
-        elif employee_title == "xxx":
-            break
+            all_utility.append(util_name)
+            all_utility_cost.append(util_cost)
 
-        quantity_employee = num_check("Employees of this type: ", "integer")
+    elif exp_type == "wages":
+        # loop to get wages
+        while True:
 
-        amount = num_check(f"Hours per week? <enter for {how_many}>: ",
-                           "integer", "")
+            # Get item name and check it's not blank
+            employee_title = not_blank("Employee Title: ")
 
-        # Allow users to push <enter> to default to number of items being made
-        if amount == "":
-            amount = how_many
+            # check users enter at least one employee
+            if employee_title == "xxx" and len(all_emp) == 0:
+                print("Oops - you have not entered anything.  "
+                      "You need at least one item.")
+                continue
 
-        how_much_question = "Wages of title? $"
+            # end loop when users enter exit code
+            elif employee_title == "xxx":
+                break
 
-        # Get price for item (question customised depending on expense type).
-        price_for_one = num_check(how_much_question, "float")
-        print()
+            quantity_employee = num_check("Employees of this type: ", "integer")
 
-        if price_for_one <= 23.50:
-            print("You cannot pay employees less than minimum wage. Make a new employee type")
-            continue
+            amount = num_check(f"Hours per week? <enter for {how_many}>: ",
+                               "integer", "")
 
-        all_items.append(employee_title)
-        all_amounts.append(amount)
-        all_employee_cost.append(price_for_one)
+            # Allow users to push <enter> to default to number of items being made
+            if amount == "":
+                amount = how_many
+
+            how_much_question = "Wages of title? $"
+
+            # Get price for item (question customised depending on expense type).
+            price_for_one = num_check(how_much_question, "float")
+            print()
+
+            if price_for_one <= 23.50:
+                print("You cannot pay employees less than minimum wage. Make a new employee type")
+                print()
+                continue
+
+            all_emp.append(employee_title)
+            all_amounts.append(amount)
+            all_employee_cost.append(price_for_one)
 
     # make panda
-    expense_frame = pandas.DataFrame(expenses_dict)
+    wage_frame = pandas.DataFrame(wages_dict)
 
     # Calculate Cost Column
-    expense_frame['Cost'] = expense_frame['Amount'] * expense_frame['$ / Employee']
+    wage_frame['Cost'] = wage_frame['Amount'] * wage_frame['$ / Employee']
 
     # calculate subtotal
-    subtotal = expense_frame['Cost'].sum()
+    subtotal = wage_frame['Cost'].sum()
 
     # Apply currency formatting to currency columns.
     add_dollars = ['Amount', '$ / Employee', 'Cost']
     for var_item in add_dollars:
-        expense_frame[var_item] = expense_frame[var_item].apply(currency)
+        wage_frame[var_item] = wage_frame[var_item].apply(currency)
 
     # make expense frame into a string with the desired columns
-    if exp_type == "variable":
-        expense_string = tabulate(expense_frame, headers='keys',
+    if exp_type == "wages":
+        expense_string = tabulate(wage_frame, headers='keys',
                                   tablefmt='psql', showindex=False)
     else:
-        expense_string = tabulate(expense_frame[['Item', 'Cost']], headers='keys',
+        expense_string = tabulate(wage_frame[['Employee', 'Cost']], headers='keys',
                                   tablefmt='psql', showindex=False)
 
     # return the expenses panda and subtotal
@@ -219,6 +246,7 @@ def pizza_prof_calc(how_pizza=1):
         pizza_prof = cost_pizza - mat_cost
         if pizza_prof <= 0:
             print("You cannot have a profit of $0 per pizza. Make a new pizza product")
+            print()
             continue
 
         all_pizza.append(pizza_name)
