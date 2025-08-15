@@ -127,8 +127,6 @@ def get_expenses(exp_type, how_many=10):
         "Utility Cost": all_utility_cost
     }
 
-    hours = how_many  # how_many defaults to 10
-    how_much_question = "Hours per week"
     if exp_type == "utility":
         # loop to get utilities
         while True:
@@ -232,7 +230,7 @@ def get_expenses(exp_type, how_many=10):
     return expense_string, subtotal, utility_string, util_subtotal
 
 
-def pizza_prof_calc(how_pizza=1):
+def pizza_prof_calc():
     # PIZZA list for panda
     all_pizza = []
     all_pizza_cost = []
@@ -447,7 +445,7 @@ year = today.strftime("%Y")
 main_heading_string = make_statement(f"Pizza Cost Calculator "
                                      f"({shop_name}, {day}/{month}/{year})", "=")
 
-variable_heading_string = make_statement("Employee Wages", "-")
+employee_heading_string = make_statement("Employee Wages", "-")
 employee_subtotal_string = f"Wage Expense Subtotal: ${employee_subtotal:.2f}"
 
 # set up strings if we have utility costs
@@ -460,6 +458,7 @@ else:
     utility_heading_string = make_statement("You have no Utility Expenses", "-")
     utility_subtotal_string = "Utility Expenses Subtotal: $0.00"
 
+pizza_profit_heading = make_statement("Profit Per Pizza", "-")
 avg_amount_heading = make_statement("Selling Amount Calculations", "-")
 
 print(final_frame)
@@ -468,7 +467,7 @@ suggest_amount_string = make_statement(f"We suggest you should sell {avg_num} pi
 # List of strings to be outputted / written to file
 to_write = [
             main_heading_string,
-            "\n", variable_heading_string, employee_panda_string,
+            "\n", employee_heading_string, employee_panda_string,
             employee_subtotal_string,
             "\n", utility_heading_string, utility_panda_string,
             utility_subtotal_string, "\n",
