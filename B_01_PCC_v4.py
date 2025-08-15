@@ -176,29 +176,24 @@ def get_expenses(exp_type, how_many=10):
             how_much_question = "Wages of title? $"
 
             # Get price for item (question customised depending on expense type).
-            price_for_one = num_check(how_much_question, "float")
+            employee_wage = num_check(how_much_question, "float")
             print()
 
-            # loop restarts for illegal inputs
-            if price_for_one < 23.50:
-                print("You cannot pay employees less than minimum wage. Make a new employee type")
+            # loop restarts for illegal/unethical inputs
+            if employee_wage < 23.50:
+                print("You cannot pay employees less than minimum wage ($23.50). Make a new employee type")
                 print()
                 continue
 
-            elif hours <= 0 or hours > 70:
-                print("You cannot have an employee work 0 hours or work over 10 hours a day. Make a new employee type")
-                print()
-                continue
-
-            elif quantity_employee <= 0:
-                print("You cannot have 0 employees. Make a new employee type")
+            elif hours > 70:
+                print("You cannot have an employee work over 70 hours a week. Make a new employee type")
                 print()
                 continue
 
             all_emp.append(employee_title)
             all_amount.append(quantity_employee)
             all_hours.append(hours)
-            all_employee_cost.append(price_for_one)
+            all_employee_cost.append(employee_wage)
 
     # make util panda
     util_frame = pandas.DataFrame(utility_dict)

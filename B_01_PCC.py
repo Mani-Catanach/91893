@@ -12,20 +12,22 @@ def make_statement(statement, decoration):
     return f"{decoration * 3} {statement} {decoration * 3}\n"
 
 
-def yes_no(question):
-    """Checks that users enter yes / no / y / n"""
+def string_check(question, valid_answers, numletters=1):
+    """Checks that users enter the full word
+    or the 'n' letter/s of a word from a range of valid responses"""
 
     while True:
 
         response = input(question).lower()
 
-        if response == "y" or response == "yes":
-            return "yes"
-        elif response == "n" or response == "no":
-            return "no"
+        for item in valid_answers:
 
-        print(f"Please answer yes / no (y / n)")
-
+            # check if the response is the entire word
+            if response == item:
+                return item
+            elif response == item[:numletters]:
+                return item
+        print(f"Please choose an option from {valid_answers}")
 
 def instructions():
     """Displays instructions"""
@@ -36,14 +38,14 @@ def instructions():
     - How many items you plan on selling 
     - The costs for each component of the product 
       (variable expenses)
-    - Whether or not you have utility expenses (if you have 
-      utility expenses, it will ask you what they are).
+    - Whether or not you have fixed expenses (if you have 
+      fixed expenses, it will ask you what they are).
     - How much money you want to make (ie: your profit goal)
 
 It will also ask you how much the recommended sales price should 
 be rounded to.
 
-The program outputs an itemised list of the variable and utility 
+The program outputs an itemised list of the variable and fixed 
 expenses (which includes the subtotals for these expenses). 
 
 Finally it will tell you how much you should sell each item for 
@@ -100,81 +102,112 @@ def num_check(question, num_type="float", exit_code=None):
             print(error)
 
 
-def get_expenses(exp_type, how_many=10):
-    """Gets variable / utility expenses and outputs
+def cost(expense_profit, how_many=1):
+    """Gets variable / fixed expenses and outputs
     panda (as a string) and a subtotal of the expenses"""
 
     # Lists for panda
+    all_week = []
     all_items = []
-    all_amounts = []
-    all_employee_cost = []
+    all_dollar_per_pizza = []
+    all_sell_pizza = []
+    all_employee = []
+    all_cost = []
 
     # Expenses dictionary
-    expenses_dict = {
-        "Item": all_items,
-        "Amount": all_amounts,
-        "$ / Employee": all_employee_cost
+    costs_dict = {
+        "Cost / Week"
+        "Cost Total": all_cost
     }
 
-    # defaults for utility expenses
-    amount = how_many   # how_many defaults to 1
-    how_much_question = "Hours per week"
+    profit_dict = {
+        "Pizza Name": all_items,
+        "Pizza Sell $": all_sell_pizza,
+        "Cost To Make?": all_dollar_per_pizza
+    }
 
-    # loop to get expenses
+    # defaults for fixed expenses
+    amount = how_many   # how_many defaults to 1
+    how_much_question = "How much? $"
+
+    # loop to get profit/expenses
     while True:
 
         # Get item name and check it's not blank
-        employee_title = not_blank("Employee Title: ")
 
-        # check users enter at least one variable expense
-        if exp_type == "wages" and employee_title == "xxx" and len(all_items) == 0:
-            print("Oops - you have not entered anything.  "
-                  "You need at least one item.")
-            continue
+        wage_question = "Employee wages? $"
+        hours_question = "Hours / week?"
 
-        # end loop when users enter exit code
-        elif employee_title == "xxx":
-            break
+        expense_profit = string_check("Costs or profits?", ("cost", "profit"), 1)
+        if expense_profit == "cost":
+            emp_util = string_check("Utilities or wages?", ("utilities", "wages"), 1)
 
-        quantity_employee = num_check("Employees of this type: ", "integer")
+            # check users enter at least one variable expense
+            if emp_util == "xxx" and len(all_items) == 0:
+                print("Oops - you have not entered anything.  "
+                      "You need at least .")
+                continue
 
-        # Get variable expenses item amount <enter> defaults to number of
-        # products being made.
-        if exp_type == "wages":
+            # end loop when users enter exit code
+            elif emp_util== "xxx":
+                break
 
-            amount = num_check(f"Hours per week? <enter for {how_many}>: ",
-                               "integer", "")
+            # Get variable expenses item amount <enter> defaults to number of
+            # products being made.
+            if emp_util == "wage":
+                employee_title = not_blank("Employee Title: ")
+                amount = num_check(f"How many employees? <enter for {how_many}>: ",
+                                   "integer", "")
 
-            # Allow users to push <enter> to default to number of items being made
-            if amount == "":
-                amount = how_many
+                # Allow users to push <enter> to default to number of items being made
+                if amount == "":
+                    amount = how_many
 
-            how_much_question = "Wages of title? $"
+            elif emp_util == "utilities":
+                one_or_continuous = string_check("Is this a one off or is it a weekly cost?",
+                                                 ("one off", "weekly"))
+                utility_name = not_blank("Utility Name: ")
+                if one_or_continuous == "weekly":
+                    util_cost = num_check("Cost per week: ", "float")
 
-        # Get price for item (question customised depending on expense type).
-        price_for_one = num_check(how_much_question, "float")
-        print()
+                elif one_or_continuous == "one off":
+                    one_off = num_check("Purchase Price: ", "float")
 
-        all_items.append(employee_title)
-        all_amounts.append(amount)
-        all_employee_cost.append(price_for_one)
+            # Get price for item (question customised depending on expense type).
+            wage = num_check(wage_question, "float")
+            print()
+            hours = num_check(hours_question, "integer")
+            week_amount = num_check("How many weeks are you do you want cost calculated for: ", "integer")
+            cost_week = hours * wage * amount + util_cost
+
+            print(cost_week)
+            all_week.append(cost_week)
+
+        elif expense_profit == "profit":
+            pizza_name = not_blank("Pizza Name: ")
+            cost_pizza = num_check("$ / Pizza? ", "float")
+            mat_cost = num_check("Food Cost?", "float")
+            pizza_prof = cost_pizza - mat_cost
+
+            all_dollar_per_pizza.append(cost_pizza)
+            all_sell_pizza.append(pizza_prof)
 
     # make panda
-    expense_frame = pandas.DataFrame(expenses_dict)
+    expense_frame = pandas.DataFrame(costs_dict)
 
     # Calculate Cost Column
-    expense_frame['Cost'] = expense_frame['Amount'] * expense_frame['$ / Employee']
+    expense_frame['Cost'] = expense_frame['Amount'] * expense_frame['$ / Item']
 
     # calculate subtotal
     subtotal = expense_frame['Cost'].sum()
 
     # Apply currency formatting to currency columns.
-    add_dollars = ['Amount', '$ / Employee', 'Cost']
+    add_dollars = ['Amount', '$ / Item', 'Cost']
     for var_item in add_dollars:
         expense_frame[var_item] = expense_frame[var_item].apply(currency)
 
     # make expense frame into a string with the desired columns
-    if exp_type == "variable":
+    if expense_profit == "cost":
         expense_string = tabulate(expense_frame, headers='keys',
                                   tablefmt='psql', showindex=False)
     else:
@@ -184,66 +217,6 @@ def get_expenses(exp_type, how_many=10):
     # return the expenses panda and subtotal
     return expense_string, subtotal
 
-# Note: re-enter this later as an argument
-# pizza_profit,
-def pizza_prof_calc(how_pizza=1):
-
-
-    # PIZZA list for panda
-    all_pizza = []
-    all_pizza_cost = []
-    all_pizza_sell = []
-    all_profit_per_pizza = []
-
-    profit_dict = {
-        "Name": all_pizza,
-        "Material cost": all_pizza_cost,
-        "Sell price": all_pizza_sell,
-        "Profit/Pizza": all_profit_per_pizza
-    }
-
-    # loop to get expenses
-    while True:
-        pizza_name = not_blank("Pizza Name: ")
-
-        if pizza_name.lower() == "xxx":
-            if len(all_pizza) == 0:
-                print("Oops - you have not entered anything.  "
-                      "You need at least one item.")
-                continue
-            else:
-                break
-
-        cost_pizza = num_check("$ / Pizza? ", "float")
-        mat_cost = num_check("Material Cost?", "float")
-        pizza_prof = cost_pizza - mat_cost
-
-        all_pizza.append(pizza_name)
-        all_pizza_cost.append(mat_cost)
-        all_pizza_sell.append(cost_pizza)
-        all_profit_per_pizza.append(pizza_prof)
-
-    # make panda
-    pizza_frame = pandas.DataFrame(profit_dict)
-
-    # Calculate Cost Column
-    pizza_frame['Profit / Pizza'] = pizza_frame['Sell price'] - pizza_frame['Material cost']
-
-    # calculate subtotal
-    pizza_sub = pizza_frame['Profit / Pizza'].sum()
-    avg_prof = pizza_frame['Profit / Pizza'].mean
-
-    # Apply currency formatting to currency columns.
-    add_pizza = ['Sell price', 'Material cost', 'Profit / Pizza']
-    for var_item in add_pizza:
-        pizza_frame[var_item] = pizza_frame[var_item].apply(currency)
-
-    # make expense frame into a string with the desired columns
-    pizza_string = tabulate(pizza_frame[['Name', 'Profit / Pizza']], headers='keys',
-                                  tablefmt='psql', showindex=False)
-
-    # return the expenses panda and subtotal
-    return pizza_string, pizza_sub, avg_prof
 
 def currency(x):
     """Formats numbers as currency ($#.##)"""
@@ -291,7 +264,7 @@ def profit_goal(total_costs):
             continue
 
         if profit_type == "unknown" and amount >= 100:
-            dollar_type = yes_no(f"Do you mean ${amount:.2f}. ie {amount:.2f} dollars? , y/n")
+            dollar_type = string_check(f"Do you mean ${amount:.2f}. ie {amount:.2f} dollars? , y/n")
 
             # set profit type based on user answer above
             if dollar_type == "yes":
@@ -300,7 +273,7 @@ def profit_goal(total_costs):
                 profit_type = "%"
 
         elif profit_type == "unknown" and amount <= 100:
-            percent_type = yes_no(f"Do you mean {amount}%? , y/n: ")
+            percent_type = string_check(f"Do you mean {amount}%? , y/n: ")
             if percent_type == "yes":
                 profit_type = "%"
             else:
@@ -332,7 +305,7 @@ def clean_filename(raw_filename):
         # check for valid length
         if len(raw_filename) >= 20:
             valid_filename = False
-            error = ("Oops - your product name / filename is too long.  \n"
+            error = ("Oops - your filename is too long.  \n"
                      "Please provide an alternate filename (<= 19 characters) \n"
                      "or press <enter> to default to FRC_yyyy_mm_ddd")
 
@@ -350,7 +323,7 @@ def clean_filename(raw_filename):
             print(error)
             raw_filename = input("\nPlease enter an alternate name for the start of the file: ")
 
-            # reset valid_filename so that it new name can be checked.
+            # reset valid_filename so that new name can be checked.
             valid_filename = True
 
             # put in default filename if users press <enter>
@@ -363,56 +336,51 @@ def clean_filename(raw_filename):
 
 # Main routine goes here
 
-# initialise variables...
+# intialise variables...
 
-# assume we have no utility expenses for now
-utility_subtotal = 0
-utility_panda_string = ""
+# assume we have no fixed expenses for now
+fixed_subtotal = 0
+fixed_panda_string = ""
 
 print(make_statement("Pizza Cost Calculator", "[]"))
 
 print()
-want_instructions = yes_no("Do you want to see the instructions? ")
+want_instructions = string_check("Do you want to see the instructions? ", ("yes", "no"), numletters=1).lower()
 print()
 
 if want_instructions == "yes":
     instructions()
 
 print()
-
 # Get product details...
-product_name = not_blank("Shop Name: ")
+company_name = not_blank("Company Name: ")
+weeks_running = num_check("How many weeks are you running it for: ", "integer")
 
 # Get variable expenses...
-print("Let's get the employee wages....")
-employee_wages = get_expenses("wages")
+print("Let's get the variable expenses....")
+variable_expenses = cost("variable", weeks_running)
+
+variable_panda_string = variable_expenses[0]
+variable_subtotal = variable_expenses[1]
+
+# ask user if they have fixed expenses and retrieve them
 print()
+has_fixed = string_check("Do you have fixed expenses? ", ("yes",  "no"), 1)
 
-variable_panda_string = employee_wages[0]
-employee_subtotal = employee_wages[1]
+if has_fixed == "yes":
+    fixed_expenses = cost("fixed")
 
-# ask user if they have utility expenses and retrieve them
-print()
-has_utility = yes_no("Do you have utility costs? ")
+    fixed_panda_string = fixed_expenses[0]
+    fixed_subtotal = fixed_expenses[1]
 
-if has_utility == "yes":
-    utility_expenses = get_expenses("utility")
-
-    utility_panda_string = utility_expenses[0]
-    utility_subtotal = utility_expenses[1]
-
-    # If the user has not entered any utility expenses,
+    # If the user has not entered any fixed expenses,
     # # Set empty panda to "" so that it does not display!
-    if utility_subtotal == 0:
-        has_utility = "no"
-        utility_panda_string = ""
+    if fixed_subtotal == 0:
+        has_fixed = "no"
+        fixed_panda_string = ""
 
-total_expenses = employee_subtotal + utility_subtotal
+total_expenses = variable_subtotal + fixed_subtotal
 total_expenses_string = f"Total Expenses: ${total_expenses:.2f}"
-
-print()
-print("Let's get your profit per pizza...")
-pi_profit_string, pizza_subtotal, prof_avg = pizza_prof_calc()
 
 
 # Get profit Goal here.
@@ -420,10 +388,9 @@ target = profit_goal(total_expenses)
 sales_target = total_expenses + target
 
 # calc min sell price and round it to nearest desired dollar amount
-selling_amount = (total_expenses + target) / prof_avg
-min_num = math.ceil(selling_amount)
+selling_price = (total_expenses +target) / weeks_running
 round_to = num_check("Round To: ", 'integer')
-suggested_price = round_up(selling_amount, round_to)
+suggested_price = round_up(selling_price, round_to)
 
 # strings / output area
 
@@ -436,37 +403,38 @@ month = today.strftime("%m")
 year = today.strftime("%Y")
 
 # Headings / Strings...
-main_heading_string = make_statement(f"Pizza Cost Calculator "
-                                     f"({product_name}, {day}/{month}/{year})", "=")
-variable_heading_string = make_statement("Employee Wages", "-")
-employee_subtotal_string = f"Wage Expense Subtotal: ${employee_subtotal:.2f}"
+main_heading_string = make_statement(f"Pizza Cost Calculator"
+                                     f"({company_name}, {day}/{month}/{year})", "=")
+quantity_string = f"Quantity being made: {weeks_running}"
+variable_heading_string = make_statement("Variable Expenses", "-")
+variable_subtotal_string = f"Variable Expenses Subtotal: ${variable_subtotal:.2f}"
 
-# set up strings if we have utility costs
-if has_utility == "yes":
-    utility_heading_string = make_statement("Utility Expenses", "-")
-    utility_subtotal_string = f"Utility Expenses Subtotal: {utility_subtotal:.2f}"
+# set up strings if we have fixed costs
+if has_fixed == "yes":
+    fixed_heading_string = make_statement("Fixed Expenses", "-")
+    fixed_subtotal_string = f"Fixed Expenses Subtotal: {fixed_subtotal:.2f}"
 
-# set utility cost strings to blank if we don't have utility costs
+# set fixed cost strings to blank if we don't have fixed costs
 else:
-    utility_heading_string = make_statement("You have no Utility Expenses", "-")
-    utility_subtotal_string = "Utility Expenses Subtotal: $0.00"
+    fixed_heading_string = make_statement("You have no Fixed Expenses", "-")
+    fixed_subtotal_string = "Fixed Expenses Subtotal: $0.00"
 
 
-selling_amount_heading = make_statement("Selling {price Calculations", "-")
+selling_price_heading = make_statement("Selling {rice Calculations", "-")
 profit_goal_string = f"Profit Goal: ${target:.2f}"
 sales_target_string = f"\nTotal Sales Needed: ${sales_target:.2f}"
 
-minimum_price_string = f"Minimum Selling Price: ${selling_amount:.2f}"
+minimum_price_string = f"Minimum Selling Price: ${selling_price:.2f}"
 suggested_price_string = make_statement(f"Suggested Selling Price:"
                                         f"${suggested_price:.2f}", "*")
 
 # List of strings to be outputted / written to file
-to_write = [main_heading_string,
+to_write = [main_heading_string, quantity_string,
             "\n", variable_heading_string, variable_panda_string,
-            employee_subtotal_string,
-            "\n", utility_heading_string, utility_panda_string,
-            utility_subtotal_string, "\n",
-            selling_amount_heading, total_expenses_string,
+            variable_subtotal_string,
+            "\n", fixed_heading_string, fixed_panda_string,
+            fixed_subtotal_string, "\n",
+            selling_price_heading, total_expenses_string,
             profit_goal_string, sales_target_string,
             minimum_price_string, "\n", suggested_price_string]
 
@@ -479,7 +447,7 @@ for item in to_write:
 
 # check product name is suitable for a filename
 # and ask for an alternate file name if necessary
-clean_product_name = clean_filename(product_name)
+clean_product_name = clean_filename(company_name)
 
 file_name = f"{clean_product_name}_{year}_{month}_{day}"
 write_to = "{}.txt".format(file_name)
