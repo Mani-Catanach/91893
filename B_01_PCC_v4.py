@@ -475,4 +475,5 @@ text_file = open(write_to, "w+")
 # write item to file
 for item in to_write:
     text_file.write(item)
+
     text_file.write("\n")
