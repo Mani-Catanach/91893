@@ -178,11 +178,10 @@ def cost(expense_profit, how_many=1):
             print()
             hours = num_check(hours_question, "integer")
             week_amount = num_check("How many weeks are you do you want cost calculated for: ", "integer")
-            cost_week = hours * wage * amount + util_cost + one_off / week_amount
-            cost_total = cost_week * week_amount
+            cost_week = hours * wage * amount + util_cost
+
             print(cost_week)
             all_week.append(cost_week)
-            all_cost.append(cost_total)
 
         elif expense_profit == "profit":
             pizza_name = not_blank("Pizza Name: ")
@@ -306,7 +305,7 @@ def clean_filename(raw_filename):
         # check for valid length
         if len(raw_filename) >= 20:
             valid_filename = False
-            error = ("Oops - your product name / filename is too long.  \n"
+            error = ("Oops - your filename is too long.  \n"
                      "Please provide an alternate filename (<= 19 characters) \n"
                      "or press <enter> to default to FRC_yyyy_mm_ddd")
 
@@ -354,12 +353,12 @@ if want_instructions == "yes":
 
 print()
 # Get product details...
-product_name = not_blank("Product Name: ")
-quantity_made = num_check("Quantity being made: ", "integer")
+company_name = not_blank("Company Name: ")
+weeks_running = num_check("How many weeks are you running it for: ", "integer")
 
 # Get variable expenses...
 print("Let's get the variable expenses....")
-variable_expenses = cost("variable", quantity_made)
+variable_expenses = cost("variable", weeks_running)
 
 variable_panda_string = variable_expenses[0]
 variable_subtotal = variable_expenses[1]
@@ -389,7 +388,7 @@ target = profit_goal(total_expenses)
 sales_target = total_expenses + target
 
 # calc min sell price and round it to nearest desired dollar amount
-selling_price = (total_expenses +target) / quantity_made
+selling_price = (total_expenses +target) / weeks_running
 round_to = num_check("Round To: ", 'integer')
 suggested_price = round_up(selling_price, round_to)
 
@@ -405,8 +404,8 @@ year = today.strftime("%Y")
 
 # Headings / Strings...
 main_heading_string = make_statement(f"Pizza Cost Calculator"
-                                     f"({product_name}, {day}/{month}/{year})", "=")
-quantity_string = f"Quantity being made: {quantity_made}"
+                                     f"({company_name}, {day}/{month}/{year})", "=")
+quantity_string = f"Quantity being made: {weeks_running}"
 variable_heading_string = make_statement("Variable Expenses", "-")
 variable_subtotal_string = f"Variable Expenses Subtotal: ${variable_subtotal:.2f}"
 
@@ -448,7 +447,7 @@ for item in to_write:
 
 # check product name is suitable for a filename
 # and ask for an alternate file name if necessary
-clean_product_name = clean_filename(product_name)
+clean_product_name = clean_filename(company_name)
 
 file_name = f"{clean_product_name}_{year}_{month}_{day}"
 write_to = "{}.txt".format(file_name)
