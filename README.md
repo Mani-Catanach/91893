@@ -8,3 +8,5 @@ The final program file is B_01_PCC_v4. v1-v3 have numerous bugs and issues so sh
 usable but are there to showcase the development process.
 The major components that make up the program are C_01-09. C_10 and C_11 are unused in v4 but were part of
 previous iterations such as in v1-v3.
+
+Unused variations like the string checker are part of the trialling of unique variants
