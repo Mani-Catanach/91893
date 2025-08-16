@@ -1,6 +1,3 @@
-import pandas
-from tabulate import tabulate
-
 #Functions go here
 def yes_no(question):
     """Checks that users enter yes / y or no / n to a question"""
@@ -88,4 +85,5 @@ while True:
      sales_target = total_expenses + target
      print(f"Profit Goal: ${target:.2f}")
      print(f"Sales Target: ${sales_target:.2f}")
+
      print()
