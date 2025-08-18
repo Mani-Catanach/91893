@@ -1,3 +1,4 @@
+# functions go here
 def num_check(question, num_type="float", exit_code=None):
     """Checks that response is a float / integer more than zero"""
 
@@ -32,22 +33,12 @@ def num_check(question, num_type="float", exit_code=None):
             print(error)
 
 
-def not_blank(question):
-
-    while True:
-        response = input(question)
-
-        if response != "":
-            return response
-
-        print("Sorry, this can't be blank. Please try again. \n")
-
-
-# Main routine goes here
-
 # loop for testing purposes
-while True:
-    employee_name = not_blank("Employee Title")
-    employee_amount = num_check("Amount of employees: ", "integer")
-    print(f"You are employing {employee_amount} {employee_name}s")
-    print()
+
+# gets employee hours and wages
+hours = num_check("Hours per week:", "integer")
+wages = num_check("Wage per hour: ", "float")
+
+# calculates cost per week and tells user
+cost_per_week = wages * hours
+print(f"Your employee costs ${cost_per_week} per week.")

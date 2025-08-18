@@ -1,6 +1,7 @@
 import pandas
 from tabulate import tabulate
 
+
 def not_blank(question):
     """Checks user response is not blank"""
     while True:
@@ -64,7 +65,7 @@ def yes_no(question):
             return "no"
 
         print(f"Please answer yes / no (y / n)")
-        
+
 
 def get_expenses(exp_type, how_many=10):
     """Gets variable / utility expenses and outputs
@@ -195,7 +196,7 @@ def get_expenses(exp_type, how_many=10):
     return expense_string, emp_wage_subtotal, utility_string, util_subtotal
 
 
-#loop for testing
+# loop for testing
 
 # Wage calculations
 get_wages = get_expenses("wages")
