@@ -1,7 +1,7 @@
 import pandas
 
 
-#Functions go here
+# Functions go here
 def not_blank(question):
 
     while True:
