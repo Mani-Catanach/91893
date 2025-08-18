@@ -9,4 +9,4 @@ usable but are there to showcase the development process.
 The major components that make up the program are C_01-10. C_11 and C_12 are unused in v4 but were part of
 previous iterations such as in v1-v3.
 
-Unused variations like the string checker are part of the trialling of unique variants
+Unused variations like the string checker are part of the trialling of component variants
