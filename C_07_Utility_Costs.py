@@ -20,7 +20,7 @@ def num_check(question, num_type="float", exit_code=None):
         error = "Oops - please enter an integer more than zero."
         change_to = int
     else:
-        error = "Oops - please enter an integer more than zero."
+        error = "Oops - please enter a number more than zero."
         change_to = float
     while True:
         response = input(question)

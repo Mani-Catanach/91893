@@ -16,7 +16,7 @@ def num_check(question, num_type="float", exit_code=None):
         error = "Oops - please enter an integer more than zero."
         change_to = int
     else:
-        error = "Oops - please enter an integer more than zero."
+        error = "Oops - please enter a number more than zero."
         change_to = float
     while True:
         response = input(question)
@@ -100,7 +100,7 @@ def get_expenses(exp_type, how_many=10):
 
 print("Getting Variable Costs...")
 employee_expenses = get_expenses("wages")
-num_type = len(employee_expenses)-1
+num_type = len(employee_expenses)
 print(f"You entered {num_type} employee type(s)")
 
 print("Getting fixed Costs...")
