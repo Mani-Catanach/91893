@@ -428,8 +428,8 @@ minimum_price_string = f"Minimum Selling Price: ${selling_price:.2f}"
 suggested_price_string = make_statement(f"Suggested Selling Price:"
                                         f"${suggested_price:.2f}", "*")
 
-# List of strings to be outputted / written to file
-to_write = [main_heading_string, quantity_string,
+# List of strings to be outputted
+output = [main_heading_string, quantity_string,
             "\n", variable_heading_string, variable_panda_string,
             variable_subtotal_string,
             "\n", fixed_heading_string, fixed_panda_string,
@@ -440,21 +440,5 @@ to_write = [main_heading_string, quantity_string,
 
 # Print area
 print()
-for item in to_write:
+for item in output:
     print(item)
-
-# create file to hold data (add .txt extension)
-
-# check product name is suitable for a filename
-# and ask for an alternate file name if necessary
-clean_product_name = clean_filename(company_name)
-
-file_name = f"{clean_product_name}_{year}_{month}_{day}"
-write_to = "{}.txt".format(file_name)
-
-text_file = open(write_to, "w+")
-
-# write item to file
-for item in to_write:
-    text_file.write(item)
-    text_file.write("\n")
