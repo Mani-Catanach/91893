@@ -16,34 +16,40 @@ def yes_no(question):
 def profit_goal(total_costs):
     """calculates profit goal work out profit goal and total sales required"""
     # initialise variables and error message
-    error = "please enter a valid profit goal\n"
+    error = "Please enter a valid profit goal\n"
     profit_type = ""
     amount = 0
 
     valid = False
     while not valid:
 
-        #ask for profit goal...
-        response = input("What is your profit goal (eg 500 or 50%)")
+        # ask for profit goal...
+        response = input("What is your profit goal (eg 500 or 50%) ")
 
-        #check if first character is $
+        # Check if response is blank
+        if response == "":
+            print(error)
+            continue
+
+        # Check if first character is $
         if response[0] == "$":
             profit_type = "$"
-            # Get amount everything after the $
-            amount = response[:-1]
+            # Get amount (everything after the $)
+            amount = response[1:]
 
+        # Check if last character is %
         elif response[-1] == "%":
             profit_type = "%"
-            # get amount ( everything before the %)
+            # Get amount (everything before the %)
             amount = response[:-1]
 
         else:
-            # set response to unknown amount for now
+            # Set response to amount for unknown type
             profit_type = "unknown"
             amount = response
 
         try:
-            # check amount is a number more than zero...
+            # Check amount is a number more than zero...
             amount = float(amount)
             if amount <= 0:
                 print(error)
