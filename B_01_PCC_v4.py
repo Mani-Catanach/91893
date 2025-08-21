@@ -197,8 +197,14 @@ def get_expenses(exp_type, how_many=10):
 
     # make util panda
     util_frame = pandas.DataFrame(utility_dict)
+
+    # calculate utility cost
     util_subtotal = util_frame['Utility Cost'].sum()
+
+    # Apply Currency formatting to currency columns
     util_frame['Utility Cost'] = util_frame['Utility Cost'].apply(currency)
+
+    #make util frame into string
     utility_string = tabulate(util_frame[['Utility', 'Utility Cost']], headers='keys',
                               tablefmt='psql', showindex=False)
 
@@ -216,12 +222,11 @@ def get_expenses(exp_type, how_many=10):
     for var_item in add_dollars:
         wage_frame[var_item] = wage_frame[var_item].apply(currency)
 
-    # make expense frame into a string with the desired columns
-
+    # make wage frame into a string with the desired columns
     expense_string = tabulate(wage_frame, headers='keys',
                               tablefmt='psql', showindex=False)
 
-    # return the expenses panda and subtotal
+    # return the expenses pandas and subtotals
     return expense_string, subtotal, utility_string, util_subtotal
 
 
@@ -294,11 +299,6 @@ def currency(x):
     return "${:.2f}".format(x)
 
 
-def round_up(amount, round_val):
-    """Rounds amount to desired hole number"""
-    return int(math.ceil(amount / round_val)) * round_val
-
-
 def clean_filename(raw_filename):
     """Check filename has not illegal characters and is not too long"""
 
@@ -314,7 +314,7 @@ def clean_filename(raw_filename):
         # check for valid length
         if len(raw_filename) >= 20:
             valid_filename = False
-            error = ("Oops - your product name / filename is too long.  \n"
+            error = ("Oops - your shop name / filename is too long.  \n"
                      "Please provide an alternate filename (<= 19 characters) \n"
                      "or press <enter> to default to PCC_yyyy_mm_ddd")
 
@@ -322,7 +322,7 @@ def clean_filename(raw_filename):
         for letter in raw_filename:
             if letter.isalnum() is False and letter != "_":
                 valid_filename = False
-                error = ("I can't use the product name / proposed filename \n"
+                error = ("I can't use the shop name / proposed filename \n"
                          "as it has illegal characters.  Please \n"
                          "enter an alternate name for the first part \n"
                          "of the file or press <enter> to default to PCC_yyyy_mm_dd")
