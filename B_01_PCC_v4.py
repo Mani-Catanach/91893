@@ -130,6 +130,8 @@ def get_expenses(exp_type, how_many=10):
     if exp_type == "utility":
         # loop to get utilities
         while True:
+            
+            # get utility name and check its not blank
             util_name = not_blank("Utility Name: ")
 
             # check users enter at least one utility expense
@@ -151,7 +153,7 @@ def get_expenses(exp_type, how_many=10):
         # loop to get wages
         while True:
 
-            # Get item name and check it's not blank
+            # Get employee title and check it's not blank
             employee_title = not_blank("Employee Title: ")
 
             # check users enter at least one employee
@@ -490,4 +492,5 @@ text_file = open(write_to, "w+")
 # write item to file
 for item in to_write:
     text_file.write(item)
+
     text_file.write("\n")
